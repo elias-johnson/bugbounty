@@ -54,10 +54,15 @@ function edit() {
 
 function show() {
     if [[ -z $1 ]]; then
-        sed -n "s|.*<name>\(.*\)</name>.*<desc>\(.*\)</desc>.*|\1 : \2|p" ~/.bugs
+        echo "Current bugs:"
+        echo
+        sed -n "s|.*<name>\(.*\)</name>.*<desc>\(.*\)</desc>.*|• \x1b[1m\1\x1b[0m: \2|p" ~/.bugs
     else
-        grep "<name>$1</name>" ~/.bugs | sed -n "s|.*<name>\(.*\)</name>.*<desc>\(.*\)</desc>.*|\1 : \2|p"
+        echo
+        sed -n "s|.*<name>$1</name>.*<desc>\(.*\)</desc>.*|• \x1b[1m$1\x1b[0m: \1|p" ~/.bugs
     fi
+
+    echo
 }
 
 function help() {
