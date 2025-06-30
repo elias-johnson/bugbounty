@@ -1,5 +1,14 @@
 #!/bin/bash
 
+function new_list() {
+    if [[ -z $1 ]]; then
+        error_handler "bugbounty: missing list name"
+    fi
+    
+    ensure_list_does_not_exist "$1"
+    echo -e "<list>$1\n</list>" >> ~/.bugs
+}
+
 function new() {
     if [[ -z $1 ]]; then
         error_handler "bugbounty: missing bug name and description\nusage: 'bugbounty --add <bug name> <bug description>'"
@@ -52,6 +61,13 @@ function edit() {
     esac
 }
 
+function display_lists() {
+    echo "Current lists:"
+    echo
+    sed -n "s|.*<list>\(.*\)|• \x1b[1m\1|p" ~/.bugs
+    echo
+}
+
 function show() {
     if [[ -z $1 ]]; then
         echo "Current bugs:"
@@ -94,6 +110,13 @@ function ensure_bug_file_exists() {
     fi
 }
 
+function ensure_list_does_not_exist() {
+    output=$(grep -x "<list>$1" ~/.bugs)
+    if [[ -n $output ]]; then
+        error_handler "bugbounty: a list named '$1' already exists"
+    fi
+}
+
 function ensure_bug_exists() {
     output=$(awk '{print $1}' ~/.bugs | sed -n "s:.*<name>\(.*\)</name>.*:\1:p" | grep -x "$1")
     if [[ -z $output ]]; then
@@ -115,8 +138,14 @@ function error_handler() {
 
 if [[ -n $1 ]]; then
     case "$1" in
+        --newlist)
+            new_list "$2"
+            ;;
+        --displaylists)
+            display_lists
+            ;;
         -n|--new)
-            new "$2" "$3"
+            new "$2" "$3" "$4"
             ;;
         -r|--resolve)
             resolve "$2"
