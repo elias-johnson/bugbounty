@@ -26,18 +26,24 @@ function new() {
     ensure_list_exists "$1"
     ensure_bug_does_not_exist "$1" "$2"
 
-    sed -i "/<list>$1/,/<\/list>/s|</list>|<name>$2<\/name> <desc>$3<\/desc>\n</list>|" ~/.bugs
+    sed -i "/<list>$1$/,/<\/list>/s|</list>|<name>$2<\/name> <desc>$3<\/desc>\n</list>|" ~/.bugs
 
-    echo -e "bug \033[1m$2\033[0m has been successfully added to $1"
+    echo -e "bug $2 has been successfully added to \033[1m$1\033[0m"
 }
 
 function resolve() {
     if [[ -z $1 ]]; then
-        error_handler "bugbounty: missing bug name\nusage: 'bugbounty --resolve <bug name>'"
+        error_handler "bugbounty: missing list name\nusage: 'bugbounty --resolve <list name> <bug name>'"
     fi
 
-    ensure_bug_exists "$1"
-    sed -i "/<name>$1<\/name>/d" ~/.bugs
+    if [[ -z $2 ]]; then
+        error_handler "bugbounty: missing bug name\nusage: 'bugbounty --resolve <list name> <bug name>'"
+    fi
+
+    ensure_bug_exists "$1" "$2"
+
+    sed -i "/<list>$1$/,/<\/list>/ { /<name>$2<\/name>/d }" ~/.bugs
+
     echo "bug '$1' has been successfully resolved"
 }
 
@@ -132,14 +138,14 @@ function ensure_list_does_not_exist() {
 }
 
 function ensure_bug_exists() {
-    output=$(sed -n "/<list>$1/,/<\/list>/p" ~/.bugs | grep "<name>$2</name>")
+    output=$(sed -n "/<list>$1$/,/<\/list>/p" ~/.bugs | grep "<name>$2</name>")
     if [[ -z $output ]]; then
-        error_handler "bugbounty: a bug named '$1' does not exist"
+        error_handler "bugbounty: a bug named '$2' does not exist"
     fi
 }
 
 function ensure_bug_does_not_exist() {
-    output=$(sed -n "/<list>$1/,/<\/list>/p" ~/.bugs | grep "<name>$2</name>")
+    output=$(sed -n "/<list>$1$/,/<\/list>/p" ~/.bugs | grep "<name>$2</name>")
     if [[ -n $output ]]; then
         error_handler "bugbounty: a bug named '$2' already exists in list '$1'"
     fi
@@ -162,7 +168,7 @@ if [[ -n $1 ]]; then
             new "$2" "$3" "$4"
             ;;
         -r|--resolve)
-            resolve "$2"
+            resolve "$2" "$3"
             ;;
         -e|--edit)
             edit "$2" "$3" "$4"
