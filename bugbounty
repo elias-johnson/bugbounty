@@ -11,17 +11,24 @@ function new_list() {
 
 function new() {
     if [[ -z $1 ]]; then
-        error_handler "bugbounty: missing bug name and description\nusage: 'bugbounty --add <bug name> <bug description>'"
+        error_handler "bugbounty: missing args\nusage: 'bugbounty --new <list> <bug name> <bug description>'"
     fi
 
     if [[ -z $2 ]]; then
-        error_handler "bugbounty: missing bug description\nusage: 'bugbounty --add <bug name> <bug description>'"
+        error_handler "bugbounty: missing bug name and description\nusage: 'bugbounty --new <list> <bug name> <bug description>'"
+    fi
+
+    if [[ -z $3 ]]; then
+        error_handler "bugbounty: missing bug description\nusage: 'bugbounty --new <list> <bug name> <bug description>'"
     fi
 
     ensure_bug_file_exists
-    ensure_bug_does_not_exist "$1"
-    echo "<name>$1</name> <desc>$2</desc>" >> ~/.bugs
-    echo "bug '$1' has been successfully added"
+    ensure_list_exists "$1"
+    ensure_bug_does_not_exist "$1" "$2"
+
+    sed -i "/<list>$1/,/<\/list>/s|</list>|<name>$2<\/name> <desc>$3<\/desc>\n</list>|" ~/.bugs
+
+    echo -e "bug \033[1m$2\033[0m has been successfully added to $1"
 }
 
 function resolve() {
@@ -110,6 +117,13 @@ function ensure_bug_file_exists() {
     fi
 }
 
+function ensure_list_exists() {
+    output=$(grep -x "<list>$1" ~/.bugs)
+    if [[ -z $output ]]; then
+        error_handler "bugbounty: a list named '$1' does not exist"
+    fi
+}
+
 function ensure_list_does_not_exist() {
     output=$(grep -x "<list>$1" ~/.bugs)
     if [[ -n $output ]]; then
@@ -118,16 +132,16 @@ function ensure_list_does_not_exist() {
 }
 
 function ensure_bug_exists() {
-    output=$(awk '{print $1}' ~/.bugs | sed -n "s:.*<name>\(.*\)</name>.*:\1:p" | grep -x "$1")
+    output=$(sed -n "/<list>$1/,/<\/list>/p" ~/.bugs | grep "<name>$2</name>")
     if [[ -z $output ]]; then
         error_handler "bugbounty: a bug named '$1' does not exist"
     fi
 }
 
 function ensure_bug_does_not_exist() {
-    output=$(awk '{print $1}' ~/.bugs | sed -n "s:.*<name>\(.*\)</name>.*:\1:p" | grep -x "$1")
+    output=$(sed -n "/<list>$1/,/<\/list>/p" ~/.bugs | grep "<name>$2</name>")
     if [[ -n $output ]]; then
-        error_handler "bugbounty: a bug named '$1' already exists"
+        error_handler "bugbounty: a bug named '$2' already exists in list '$1'"
     fi
 }
 
