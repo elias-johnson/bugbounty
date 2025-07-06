@@ -9,6 +9,15 @@ function new_list() {
     echo -e "<list>$1\n</list>" >> ~/.bugs
 }
 
+function delete_list() {
+    if [[ -z $1 ]]; then
+        error_handler "bugbounty: missing list name"
+    fi
+    
+    ensure_list_exists "$1"
+    sed -i "/<list>$1$/,/<\/list>/d" ~/.bugs
+}
+
 function new() {
     if [[ -z $1 ]]; then
         error_handler "bugbounty: missing args\nusage: 'bugbounty --new <list> <bug name> <bug description>'"
@@ -47,32 +56,32 @@ function resolve() {
     echo "bug '$1' has been successfully resolved"
 }
 
-function edit() {
-    if [[ -z $1 || -z $2 || -z $3 ]]; then
-        error_handler "bugbounty: missing argument(s)\nusage: 'bugbounty --edit <bug name> <switch> <new bug name>'"
-    fi
+# function edit() {
+#     if [[ -z $1 || -z $2 || -z $3 ]]; then
+#         error_handler "bugbounty: missing argument(s)\nusage: 'bugbounty --edit <bug name> <switch> <new bug name>'"
+#     fi
 
-    case "$2" in 
-        "--change-name")
-            ensure_bug_exists "$1"
-            ensure_bug_does_not_exist "$3"
+#     case "$2" in 
+#         "--change-name")
+#             ensure_bug_exists "$1"
+#             ensure_bug_does_not_exist "$3"
             
-            sed -i "/<name>$1<\/name>/s/<name>$1<\/name>/<name>$3<\/name>/g" ~/.bugs
-            echo "bug '$1' successfully renamed to '$3'"
+#             sed -i "/<name>$1<\/name>/s/<name>$1<\/name>/<name>$3<\/name>/g" ~/.bugs
+#             echo "bug '$1' successfully renamed to '$3'"
 
-            ;;
-        "--change-desc")
-            ensure_bug_exists "$1"
+#             ;;
+#         "--change-desc")
+#             ensure_bug_exists "$1"
             
-            sed -i "/<name>$1<\/name>/s/<desc>.*<\/desc>/<desc>$3<\/desc>/g" ~/.bugs
-            echo "description of bug '$1' has been successfully updated"
+#             sed -i "/<name>$1<\/name>/s/<desc>.*<\/desc>/<desc>$3<\/desc>/g" ~/.bugs
+#             echo "description of bug '$1' has been successfully updated"
 
-            ;;
-        *)
-            error_handler "unrecognized switch '$2'\nvalid switches: --change-name, --change-desc"
-            ;;
-    esac
-}
+#             ;;
+#         *)
+#             error_handler "unrecognized switch '$2'\nvalid switches: --change-name, --change-desc"
+#             ;;
+#     esac
+# }
 
 function display_lists() {
     echo "Current lists:"
@@ -161,6 +170,9 @@ if [[ -n $1 ]]; then
         --newlist)
             new_list "$2"
             ;;
+        --deletelist)
+            delete_list "$2"
+            ;;
         --displaylists)
             display_lists
             ;;
@@ -170,9 +182,9 @@ if [[ -n $1 ]]; then
         -r|--resolve)
             resolve "$2" "$3"
             ;;
-        -e|--edit)
-            edit "$2" "$3" "$4"
-            ;;
+        # -e|--edit)
+        #     edit "$2" "$3" "$4"
+        #     ;;
         -s|--show)
             show "$2"
             ;;
