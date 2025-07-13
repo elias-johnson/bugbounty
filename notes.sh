@@ -55,9 +55,17 @@ function display_boards() {
 }
 
 function show() {
-    echo "All notes:"
-    echo
-    sed -n "s|.*<name>\(.*\)</name>.*<desc>\(.*\)</desc>.*|• \x1b[1m\1\x1b[0m: \2|p" ~/.notes
+    if [[ -z $1 ]]; then
+        echo "All notes:"
+        echo
+        sed -n "s|.*<name>\(.*\)</name>.*<desc>\(.*\)</desc>.*|• \x1b[1m\1\x1b[0m: \2|p" ~/.notes
+    else
+        ensure_board_exists "$1"
+        echo -e "Notes on \033[1m$1\033[0m:"
+        echo
+        # Clean this up
+        sed -n "/<board>$1$/,/<\/board>/p" ~/.notes | sed -n "s|.*<name>\(.*\)</name>.*<desc>\(.*\)</desc>.*|• \x1b[1m\1\x1b[0m: \2|p"
+    fi
     echo
 }
 
@@ -161,7 +169,7 @@ if [[ -n $1 ]]; then
             display_boards
             ;;
         show)
-            show
+            show "$2"
             ;;
         help)
             help | less
