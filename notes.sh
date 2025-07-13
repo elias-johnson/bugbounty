@@ -54,7 +54,7 @@ function display_boards() {
     echo
 }
 
-function list() {
+function show() {
     echo "All notes:"
     echo
     sed -n "s|.*<name>\(.*\)</name>.*<desc>\(.*\)</desc>.*|• \x1b[1m\1\x1b[0m: \2|p" ~/.notes
@@ -93,9 +93,9 @@ function help() {
     echo "  boards    displays all boards"
     echo "            'notes boards'"
     echo
-    echo "  list      lists notes"
-    echo "            'notes list'               {lists notes from all boards}"
-    echo "            'notes list <board name>'  {lists notes from a given board}"
+    echo "  show      shows notes"
+    echo "            'notes show'               {shows notes from all boards}"
+    echo "            'notes show <board name>'  {shows notes from a given board}"
     echo
 }
 
@@ -160,8 +160,8 @@ if [[ -n $1 ]]; then
         boards)
             display_boards
             ;;
-        list)
-            list
+        show)
+            show
             ;;
         help)
             help | less
