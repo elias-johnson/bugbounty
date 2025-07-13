@@ -73,14 +73,14 @@ function help() {
     echo "+---------------------------------+"
     echo "|          Sticky Notes!          |"
     echo "|                                 |"
-    echo "|   * Create a new board          |"
-    echo "|     to get started.             |"
+    echo "|  * Create a new board           |"
+    echo "|    to get started.              |"
     echo "|                                 |"
-    echo "|   * Then add all the sticky     |"
-    echo "|     notes that you want.        |"
+    echo "|  * Then add all the sticky      |"
+    echo "|    notes that you want.         |"
     echo "|                                 |"
-    echo "|   * Each sticky note consists   |" 
-    echo "|     name and a description.     |"
+    echo "|  * Each sticky note consists    |" 
+    echo "|    of a name and a description. |"
     echo "|                                 |"
     echo "+---------------------------------+"
     echo
@@ -172,12 +172,12 @@ if [[ -n $1 ]]; then
             show "$2"
             ;;
         help)
-            help | less
+            help
             ;;
         *)
             error_handler "notes: unrecognized option '$1'\nTry 'notes help' for more information."
             ;;
     esac
 else
-    help | less
+    help
 fi
