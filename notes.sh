@@ -23,9 +23,9 @@ function delete_board() {
     echo -e "board \033[1m$1\033[0m has been successfully deleted"
 }
 
-function stick() {
-    if [[ -z $4 || $3 != "on" ]]; then
-        error_handler "usage: 'notes stick <note name> <note description> on <board name>'"
+function add() {
+    if [[ -z $4 || $3 != "to" ]]; then
+        error_handler "usage: 'notes add <note name> <note description> to <board name>'"
     fi
 
     ensure_note_does_not_exist "$4" "$1"
@@ -92,8 +92,8 @@ function help() {
     echo "  delete    deletes a board"
     echo "            'notes delete <board name>'"
     echo
-    echo "  stick     sticks a new note on a board"
-    echo "            'notes stick <note name> <note description> on <board name>'"
+    echo "  add       adds a new note to a board"
+    echo "            'notes add <note name> <note description> to <board name>'"
     echo
     echo "  remove    removes a note from a board"
     echo "            'notes remove <note name> from <board name>'"
@@ -159,8 +159,8 @@ if [[ -n $1 ]]; then
         delete)
             delete_board "$2"
             ;;
-        stick)
-            stick "$2" "$3" "$4" "$5"
+        add)
+            add "$2" "$3" "$4" "$5"
             ;;
         remove)
             remove "$2" "$3" "$4"
