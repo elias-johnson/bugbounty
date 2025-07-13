@@ -55,9 +55,17 @@ function display_boards() {
 }
 
 function show() {
-    echo "All notes:"
-    echo
-    sed -n "s|.*<name>\(.*\)</name>.*<desc>\(.*\)</desc>.*|• \x1b[1m\1\x1b[0m: \2|p" ~/.notes
+    if [[ -z $1 ]]; then
+        echo "All notes:"
+        echo
+        sed -n "s|.*<name>\(.*\)</name>.*<desc>\(.*\)</desc>.*|• \x1b[1m\1\x1b[0m: \2|p" ~/.notes
+    else
+        ensure_board_exists "$1"
+        echo -e "Notes on \033[1m$1\033[0m:"
+        echo
+        # Clean this up
+        sed -n "/<board>$1$/,/<\/board>/p" ~/.notes | sed -n "s|.*<name>\(.*\)</name>.*<desc>\(.*\)</desc>.*|• \x1b[1m\1\x1b[0m: \2|p"
+    fi
     echo
 }
 
@@ -65,14 +73,14 @@ function help() {
     echo "+---------------------------------+"
     echo "|          Sticky Notes!          |"
     echo "|                                 |"
-    echo "|   * Create a new board          |"
-    echo "|     to get started.             |"
+    echo "|  * Create a new board           |"
+    echo "|    to get started.              |"
     echo "|                                 |"
-    echo "|   * Then add all the sticky     |"
-    echo "|     notes that you want.        |"
+    echo "|  * Then add all the sticky      |"
+    echo "|    notes that you want.         |"
     echo "|                                 |"
-    echo "|   * Each sticky note consists   |" 
-    echo "|     name and a description.     |"
+    echo "|  * Each sticky note consists    |" 
+    echo "|    of a name and a description. |"
     echo "|                                 |"
     echo "+---------------------------------+"
     echo
@@ -161,15 +169,15 @@ if [[ -n $1 ]]; then
             display_boards
             ;;
         show)
-            show
+            show "$2"
             ;;
         help)
-            help | less
+            help
             ;;
         *)
             error_handler "notes: unrecognized option '$1'\nTry 'notes help' for more information."
             ;;
     esac
 else
-    help | less
+    help
 fi
